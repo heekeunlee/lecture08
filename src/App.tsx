@@ -273,10 +273,55 @@ function App() {
           <p className="section-intro">
             단순 파레토 차트는 누적 결과를 보여주지만, '최근 치고 올라오는 불량'을 놓치기 쉽습니다. 주차별 순위 변동 차트(Bump Chart)를 활용하면, 항상 1등인 불량과 새롭게 순위가 급상승하는 불량을 직관적으로 구분할 수 있습니다.
           </p>
-          <figure className="image-panel">
-            <img src="/lecture08/generated/bump_chart.png" alt="불량 순위 변동 차트 (Bump Chart)" />
-            <figcaption>AI 대시보드로 시각화한 순위 변동: 'Particle'은 부동의 1위지만, 'CD Drift'가 4위에서 2위로 급상승 중입니다.</figcaption>
-          </figure>
+          <div className="bump-chart-container" style={{ background: '#1e293b', padding: '2rem', borderRadius: '12px', margin: '2rem 0', overflowX: 'auto' }}>
+            <svg width="800" height="300" viewBox="0 0 800 300" style={{ minWidth: '600px', display: 'block', margin: '0 auto' }}>
+              {/* Grid lines */}
+              {[1, 2, 3, 4].map(rank => (
+                <line key={`grid-${rank}`} x1="80" y1={rank * 60} x2="720" y2={rank * 60} stroke="#334155" strokeDasharray="4 4" />
+              ))}
+              {/* X Axis labels */}
+              {['Week 1', 'Week 2', 'Week 3', 'Week 4'].map((week, i) => (
+                <text key={week} x={150 + i * 166.6} y="280" fill="#94a3b8" fontSize="14" textAnchor="middle">{week}</text>
+              ))}
+              {/* Y Axis labels */}
+              {[1, 2, 3, 4].map(rank => (
+                <text key={`y-${rank}`} x="60" y={rank * 60 + 5} fill="#94a3b8" fontSize="14" textAnchor="end">{rank}위</text>
+              ))}
+              
+              {/* Lines */}
+              {[
+                { id: 'Particle', color: '#3b82f6', ranks: [1, 1, 1, 2] },
+                { id: 'CD Drift', color: '#f59e0b', ranks: [4, 3, 2, 1] },
+                { id: 'Scratch',  color: '#10b981', ranks: [2, 2, 4, 4] },
+                { id: 'Mura',     color: '#8b5cf6', ranks: [3, 4, 3, 3] },
+              ].map(series => (
+                <g key={series.id}>
+                  <polyline 
+                    points={series.ranks.map((r, i) => `${150 + i * 166.6},${r * 60}`).join(' ')} 
+                    fill="none" 
+                    stroke={series.color} 
+                    strokeWidth="4" 
+                    strokeLinejoin="round"
+                  />
+                  {series.ranks.map((r, i) => (
+                    <g key={`${series.id}-${i}`}>
+                      <circle cx={150 + i * 166.6} cy={r * 60} r="16" fill="#1e293b" stroke={series.color} strokeWidth="3" />
+                      <text x={150 + i * 166.6} y={r * 60 + 5} fill="#f8fafc" fontSize="14" textAnchor="middle" fontWeight="bold">{r}</text>
+                      {i === 3 && (
+                        <text x={150 + i * 166.6 + 25} y={r * 60 + 5} fill={series.color} fontSize="14" fontWeight="bold">{series.id}</text>
+                      )}
+                      {i === 0 && (
+                        <text x={150 + i * 166.6 - 25} y={r * 60 + 5} fill={series.color} fontSize="14" textAnchor="end" fontWeight="bold">{series.id}</text>
+                      )}
+                    </g>
+                  ))}
+                </g>
+              ))}
+            </svg>
+            <p style={{ textAlign: 'center', color: '#94a3b8', fontSize: '0.9rem', marginTop: '1rem' }}>
+              실무 데이터 기반 시각화: 'CD Drift'가 4주 만에 4위에서 1위로 급상승하며 최우선 조치 대상으로 부상함.
+            </p>
+          </div>
           <div className="concept-grid">
             <div className="concept-card">
               <span>순위 유지 (Horizontal)</span>
@@ -293,6 +338,16 @@ function App() {
               <h3>개선 효과 검증</h3>
               <p>최근 진행한 개선 대책이나 조건 변경이 실제로 효과가 있었는지 검증하는 지표가 됩니다.</p>
             </div>
+          </div>
+          <div className="prompt-example" style={{ background: '#f8fafc', padding: '1.5rem', borderRadius: '8px', borderLeft: '4px solid #3b82f6', marginTop: '2rem' }}>
+            <h4 style={{ margin: '0 0 1rem 0', color: '#0f172a' }}>💡 순위 변동 차트 생성을 위한 AI 프롬프트 예시</h4>
+            <pre style={{ margin: 0, whiteSpace: 'pre-wrap', color: '#334155', fontSize: '0.95rem', lineHeight: '1.5', fontFamily: 'inherit' }}>
+{`내가 제공한 defect_log.csv 데이터를 바탕으로 불량 순위 변동 차트(Bump Chart)를 그려줘.
+1. X축은 '주차(Week)'로 설정하고 최근 4주치 데이터를 반영할 것.
+2. Y축은 '불량 발생 건수 순위(1위~5위)'로 뒤집어서(1위가 맨 위에 오도록) 표시할 것.
+3. 각 불량 유형(defect_type)별로 선 색상을 다르게 지정하고, 각 데이터 포인트에 해당 주차의 순위를 텍스트로 적어줄 것.
+4. 순위가 급상승(예: 2계단 이상 상승)한 불량 유형이 있다면 차트 옆에 강조해서 요약해 줘.`}
+            </pre>
           </div>
         </section>
 
