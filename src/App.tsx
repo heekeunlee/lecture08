@@ -265,6 +265,41 @@ function App() {
               </article>
             ))}
           </div>
+          
+          <div className="prompt-example-container" style={{ display: 'flex', flexDirection: 'column', gap: '1rem', marginTop: '3rem' }}>
+            <h3 style={{ fontSize: '1.25rem', color: '#1e293b', borderBottom: '2px solid #e2e8f0', paddingBottom: '0.5rem', marginBottom: '0.5rem' }}>🤖 각 시각화를 직접 만들어보는 AI 프롬프트 예시</h3>
+            <p style={{ color: '#64748b', fontSize: '0.95rem', marginBottom: '1rem' }}>CSV 로그 파일을 챗봇에 업로드한 뒤, 아래와 같이 구체적으로 지시하면 실무에 바로 쓸 수 있는 차트를 얻을 수 있습니다.</p>
+            
+            <div className="prompt-example" style={{ background: '#f8fafc', padding: '1.5rem', borderRadius: '8px', borderLeft: '4px solid #f59e0b' }}>
+              <h4 style={{ margin: '0 0 1rem 0', color: '#0f172a' }}>💡 파레토 차트 (Pareto Chart) 생성 프롬프트</h4>
+              <pre style={{ margin: 0, whiteSpace: 'pre-wrap', color: '#334155', fontSize: '0.95rem', lineHeight: '1.5', fontFamily: 'inherit' }}>
+{`내가 제공한 defect_log.csv 데이터를 기반으로 파레토 차트를 그려줘.
+1. X축은 '불량 유형', Y축(좌측)은 '발생 건수' 막대그래프, Y축(우측)은 '누적 점유율(%)' 꺾은선으로 이중 축 설정.
+2. 누적 점유율이 80%가 되는 지점에 붉은색 수평 점선을 그어 줘.
+3. 80% 이내에 속하는 불량 유형들은 '핵심 관리 대상'으로 막대 색상을 진하게 표시해 줘.`}
+              </pre>
+            </div>
+            
+            <div className="prompt-example" style={{ background: '#f8fafc', padding: '1.5rem', borderRadius: '8px', borderLeft: '4px solid #10b981' }}>
+              <h4 style={{ margin: '0 0 1rem 0', color: '#0f172a' }}>💡 트렌드 차트 (Trend Chart) 생성 프롬프트</h4>
+              <pre style={{ margin: 0, whiteSpace: 'pre-wrap', color: '#334155', fontSize: '0.95rem', lineHeight: '1.5', fontFamily: 'inherit' }}>
+{`주차별 주요 불량의 발생 건수 추이를 꺾은선 차트(Line Chart)로 그려줘.
+1. 전체 불량이 아닌 누적 상위 5개 불량 유형만 필터링해서 보여줄 것.
+2. 각 선의 끝(가장 최근 주차)에 불량 유형 라벨과 발생 건수를 직접 표기해 줘 (범례 최소화).
+3. 4주 전 대비 현재 증가율이 20% 이상인 불량은 꺾은선을 붉은색 굵은 선으로 강조해 줘.`}
+              </pre>
+            </div>
+
+            <div className="prompt-example" style={{ background: '#f8fafc', padding: '1.5rem', borderRadius: '8px', borderLeft: '4px solid #8b5cf6' }}>
+              <h4 style={{ margin: '0 0 1rem 0', color: '#0f172a' }}>💡 액션 매트릭스 (Action Matrix) 생성 프롬프트</h4>
+              <pre style={{ margin: 0, whiteSpace: 'pre-wrap', color: '#334155', fontSize: '0.95rem', lineHeight: '1.5', fontFamily: 'inherit' }}>
+{`불량 유형들을 4분면 액션 매트릭스(Scatter Plot)에 배치해 줘.
+1. X축은 '조치 난이도 및 예상 소요 시간 (Low to High)', Y축은 '수율 영향도 및 손실 비용 (Low to High)'으로 설정.
+2. 점의 크기는 '발생 건수'에 비례하게 설정해 줘 (Bubble Chart 형태).
+3. 좌측 상단 2사분면(영향도 높고 난이도 낮음)의 배경을 옅은 녹색으로 칠하고 'Quick Wins (우선 조치)'라고 라벨을 달아 줘.`}
+              </pre>
+            </div>
+          </div>
         </section>
 
         <section className="teaching-section">
