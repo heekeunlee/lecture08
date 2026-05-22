@@ -17,21 +17,50 @@ const lessonGoals = [
 ];
 
 const lessonFlow = [
-  { time: '3분', label: '지난 흐름 연결' },
-  { time: '7분', label: '파레토 개념' },
-  { time: '10분', label: '트렌드 해석' },
-  { time: '15분', label: 'AI 분석 실습' },
-  { time: '5분', label: '검증/정리' },
+  { time: '5분', label: '문제 제기' },
+  { time: '12분', label: '파레토 개념' },
+  { time: '18분', label: '실무 판단 사례' },
+  { time: '20분', label: 'AI 분석 실습' },
+  { time: '15분', label: '검증 실습' },
+  { time: '5분', label: '정리' },
 ];
 
-const previousLessons = [
-  ['01강', 'AI 마인드셋', '코딩보다 AI에게 일 시키는 방식 이해'],
-  ['02강', '엔지니어용 대화법', '공정 변수와 현장 용어를 정확히 지시'],
-  ['03강', 'MES 데이터 병합', '분산된 생산 이력과 불량 로그를 한 표로 연결'],
-  ['04강', '데이터 정제', '결측, 단위, 이상치를 분석 가능한 상태로 정리'],
-  ['05강', '수율 히트맵', '공간 좌표로 불량 위치 패턴 확인'],
-  ['06강', '설비 이상 감지', '관리도와 이동 평균으로 OOC 탐지'],
-  ['07강', '상관관계 분석', '공정 조건과 수율/불량의 관계 후보 도출'],
+const decisionFrames = [
+  ['빈도', '얼마나 많이 발생했는가', '유형별 건수, 점유율, 누적 기여율로 전체 손실의 큰 덩어리를 찾습니다.'],
+  ['영향도', '수율과 비용을 얼마나 깎는가', '심각도, 폐기 여부, 재작업 비용을 반영해 단순 건수와 손실 순위를 분리합니다.'],
+  ['변화율', '최근에 얼마나 빨리 커지는가', '최근 4주와 기준 4주를 비교해 누적 상위와 급증 항목을 따로 봅니다.'],
+  ['난이도', '지금 바로 확인할 수 있는가', '설비 정지나 장기 실험이 필요한 항목과 즉시 점검 가능한 항목을 나눕니다.'],
+];
+
+const scenarioCards = [
+  {
+    title: 'Particle',
+    tag: '누적 1위 + 급증',
+    body: '건수 342건, 점유율 35.7%, 최근 +44%입니다. Line, process, 좌표 분포를 분리해 세정/이송 구간의 원인 범위를 좁힙니다.',
+  },
+  {
+    title: 'CD Drift',
+    tag: '누적 3위 + 급증',
+    body: '건수는 3위지만 최근 +31%입니다. 계측 calibration, 노광 dose/focus, 현상 조건, recipe 변경 이력을 긴급 확인합니다.',
+  },
+  {
+    title: 'Open',
+    tag: '저빈도 + 고영향 가능',
+    body: '건수는 낮아도 폐기율이 높으면 손실 기준 우선순위가 올라갑니다. severity를 반영한 가중 파레토로 다시 확인합니다.',
+  },
+];
+
+const promptComparison = [
+  {
+    label: '나쁜 지시문',
+    text: 'defect_log.csv 분석해서 파레토 차트 그려줘.',
+    note: '컬럼, 기간, 결측 처리, 중복 기준, 산출물 형식이 없어 AI가 임의로 가정합니다.',
+  },
+  {
+    label: '좋은 지시문',
+    text: '최근 4주와 이전 4주 평균을 비교하고, 결측 defect_type, 잘못된 date, 중복 panel_id를 경고하며, 상위 80%와 급증 Top 3를 분리해 보고서 문장으로 작성해라.',
+    note: '분석 기준, 검증 기준, 결과 형식이 명확해서 회의 자료로 옮기기 쉽습니다.',
+  },
 ];
 
 const defectRows = [
@@ -69,9 +98,11 @@ const aiPromptBlocks = [
 const checklist = [
   '불량명 표기가 Particle, particle, PRT처럼 섞여 있지 않은가?',
   '동일 패널의 중복 카운트 기준이 명확한가?',
+  '검사일, 공정 투입일, lot 종료일 중 어떤 날짜 기준으로 트렌드를 집계했는가?',
   '개수 기준과 수율 영향도 기준을 혼동하지 않았는가?',
   '최근 급증한 불량과 누적 상위 불량을 따로 해석했는가?',
   'AI가 만든 원인 가설을 설비 로그, recipe 변경 이력, LOT 이력으로 검증했는가?',
+  '차트의 단위와 보고서 문장의 단위가 defect count인지 panel count인지 일치하는가?',
 ];
 
 function App() {
@@ -98,7 +129,7 @@ function App() {
           <h1>Ch.8 불량 원인(Pareto) & 트렌드 자동 분석 실습</h1>
           <p className="subtitle">많은 불량을 “무엇부터 조치할지”로 바꾸는 AI 데이터 분석 교안</p>
           <div className="lesson-meta" aria-label="lesson summary">
-            <span>40분</span>
+            <span>75분</span>
             <span>실습 포함</span>
             <span>파레토 차트</span>
             <span>트렌드 분석</span>
@@ -112,8 +143,8 @@ function App() {
           <span className="section-label">01. 오프닝 및 학습목표</span>
           <h2>08강은 “분석 결과를 보고 무엇을 먼저 고칠 것인가”를 결정하는 수업입니다</h2>
           <p className="section-intro">
-            01강부터 07강까지는 AI와 대화하는 법, 데이터를 모으고 정제하는 법, 히트맵과 모니터링, 상관관계 분석까지 다루었습니다.
-            이제 08강에서는 불량 로그를 파레토와 트렌드로 바꾸고, AI가 다음 조치 계획까지 정리하도록 지시합니다.
+            불량 유형, 라인, 공정, 시간대가 한꺼번에 쌓이면 단순 표만으로는 조치 우선순위를 정하기 어렵습니다.
+            08강에서는 불량 로그를 파레토와 트렌드로 바꾸고, AI가 다음 조치 계획까지 정리하도록 지시합니다.
           </p>
           <div className="learning-goals-grid" aria-label="학습목표">
             {lessonGoals.map((item) => (
@@ -135,23 +166,23 @@ function App() {
         </section>
 
         <section className="teaching-section">
-          <span className="section-label">02. 01강-07강 흐름 연결</span>
-          <h2>앞 강의의 결과물은 08강에서 우선순위 분석의 입력 데이터가 됩니다</h2>
+          <span className="section-label">02. 실무 판단 프레임</span>
+          <h2>파레토 순위는 출발점이고, 실제 조치 순서는 네 가지 기준으로 정합니다</h2>
           <p className="section-intro">
-            수강생이 “왜 갑자기 파레토를 배우는지” 놓치지 않도록, 08강은 앞선 분석 도구들을 현장 의사결정으로 묶어주는 위치에 놓습니다.
+            건수 1위가 항상 조치 1순위는 아닙니다. 빈도, 영향도, 변화율, 조치 난이도를 분리해서 봐야 회의에서 실행 가능한 판단이 나옵니다.
           </p>
-          <div className="curriculum-chain">
-            {previousLessons.map(([chapter, title, result]) => (
-              <article className="chain-item" key={chapter}>
-                <strong>{chapter}</strong>
+          <div className="decision-grid">
+            {decisionFrames.map(([label, title, result]) => (
+              <article className="decision-card" key={label}>
+                <strong>{label}</strong>
                 <h3>{title}</h3>
                 <p>{result}</p>
               </article>
             ))}
           </div>
           <div className="connection-note">
-            <strong>08강의 전환점</strong>
-            <p>07강까지는 “문제를 보이게 만드는 법”이었다면, 08강은 “보이는 문제 중 무엇부터 해결할지 정하는 법”입니다.</p>
+            <strong>판단 질문</strong>
+            <p>“이 불량이 1위입니다”에서 멈추지 말고, “왜 이 불량을 먼저 봐야 하는지”를 수치와 확인 데이터로 설명합니다.</p>
           </div>
         </section>
 
@@ -183,6 +214,11 @@ function App() {
             <p>불량 점유율 = 유형별 불량 수 / 전체 불량 수 × 100</p>
             <p>누적 기여율 = 상위 유형부터 점유율을 순서대로 더한 값</p>
             <p>트렌드 변화율 = 최근 기간 평균 / 기준 기간 평균 - 1</p>
+          </div>
+          <div className="formula-box warning-box">
+            <strong>흔한 오해</strong>
+            <p>상위 80%만 보면 나머지는 무시해도 된다는 뜻이 아닙니다. 하위 항목 안에도 치명도가 높은 불량이 있을 수 있습니다.</p>
+            <p>파레토 순위는 조치 순서의 출발점이며, 영향도와 최근 변화율을 함께 봐야 합니다.</p>
           </div>
         </section>
 
@@ -220,6 +256,44 @@ function App() {
               </tbody>
             </table>
           </div>
+          <div className="scenario-grid">
+            {scenarioCards.map((item) => (
+              <article className="scenario-card" key={item.title}>
+                <span>{item.tag}</span>
+                <h3>{item.title}</h3>
+                <p>{item.body}</p>
+              </article>
+            ))}
+          </div>
+        </section>
+
+        <section className="teaching-section">
+          <span className="section-label">04-2. 심화 시각화: 불량 순위 변동 차트 (Bump Chart)</span>
+          <h2>순위 역전 현상을 포착하면, 새로운 고질 불량을 초기에 막을 수 있습니다</h2>
+          <p className="section-intro">
+            단순 파레토 차트는 누적 결과를 보여주지만, '최근 치고 올라오는 불량'을 놓치기 쉽습니다. 주차별 순위 변동 차트(Bump Chart)를 활용하면, 항상 1등인 불량과 새롭게 순위가 급상승하는 불량을 직관적으로 구분할 수 있습니다.
+          </p>
+          <figure className="image-panel">
+            <img src="/lecture08/generated/bump_chart.png" alt="불량 순위 변동 차트 (Bump Chart)" />
+            <figcaption>AI 대시보드로 시각화한 순위 변동: 'Particle'은 부동의 1위지만, 'CD Drift'가 4위에서 2위로 급상승 중입니다.</figcaption>
+          </figure>
+          <div className="concept-grid">
+            <div className="concept-card">
+              <span>순위 유지 (Horizontal)</span>
+              <h3>고질적 불량 요인</h3>
+              <p>항상 상위권을 유지하는 불량으로, 근본적인 공정 개선이나 설비 개조가 필요한 장기 과제입니다.</p>
+            </div>
+            <div className="concept-card">
+              <span>순위 상승 (Upward)</span>
+              <h3>신규 돌발성 요인</h3>
+              <p>갑자기 순위가 급상승하는 불량으로, 최근 변경된 작업자, 자재, 파츠 수명 등을 즉각 확인해야 합니다.</p>
+            </div>
+            <div className="concept-card">
+              <span>순위 하락 (Downward)</span>
+              <h3>개선 효과 검증</h3>
+              <p>최근 진행한 개선 대책이나 조건 변경이 실제로 효과가 있었는지 검증하는 지표가 됩니다.</p>
+            </div>
+          </div>
         </section>
 
         <section className="teaching-section">
@@ -232,6 +306,15 @@ function App() {
             <img src="/lecture08/generated/lesson08_workflow.png" alt="불량 로그에서 액션 메모까지 이어지는 분석 파이프라인" />
             <figcaption>Raw defect log → Clean & group → Pareto → Trend → Action memo 흐름</figcaption>
           </figure>
+          <div className="compare-grid">
+            {promptComparison.map((item) => (
+              <article className="compare-card" key={item.label}>
+                <strong>{item.label}</strong>
+                <p>{item.text}</p>
+                <span>{item.note}</span>
+              </article>
+            ))}
+          </div>
           <div className="prompt-grid">
             {aiPromptBlocks.map((block) => (
               <article className="prompt-card" key={block.label}>
@@ -256,11 +339,13 @@ function App() {
 2. 불량 유형별 파레토 차트와 누적 80% 기준선 표시
 3. 주차별 Top 3 불량 트렌드 라인 차트 표시
 4. 최근 4주 증가율이 큰 불량을 별도 카드로 표시
-5. 우선 조치 후보 3개를 "불량명 / 근거 / 확인할 데이터 / 다음 실험" 형식으로 출력
+5. severity를 반영한 손실 점수 파레토를 옵션으로 표시
+6. 우선 조치 후보 3개를 "불량명 / 근거 / 확인할 데이터 / 다음 실험" 형식으로 출력
 
 검증:
 - 전체 행 수와 집계 합계가 맞는지 표시
 - 결측 defect_type, 잘못된 date, 중복 panel_id를 경고
+- 원본 행 수, 제외 행 수, 분석 사용 행 수를 각각 표시
 - 차트 아래에 엔지니어가 해석할 수 있는 3문장 요약 제공`}</pre>
           </div>
           <div className="output-grid">
@@ -286,7 +371,7 @@ function App() {
           <span className="section-label">07. 검증 및 정리</span>
           <h2>AI 결과는 그대로 믿지 말고, 집계 기준과 현장 맥락을 반드시 확인합니다</h2>
           <p className="section-intro">
-            파레토 차트는 강력하지만 기준을 잘못 잡으면 엉뚱한 조치로 이어집니다. 마지막 5분은 결과 검증 체크리스트와 다음 강의 연결로 마무리합니다.
+            파레토 차트는 강력하지만 기준을 잘못 잡으면 엉뚱한 조치로 이어집니다. 마지막 구간은 AI 결과를 회의 자료로 쓰기 전에 반드시 확인할 항목을 정리합니다.
           </p>
           <div className="checklist-panel">
             {checklist.map((item, index) => (
@@ -297,9 +382,9 @@ function App() {
             ))}
           </div>
           <div className="next-lesson-box">
-            <strong>다음 강의 연결</strong>
+            <strong>보고서 문장 템플릿</strong>
             <p>
-              08강에서 우선 조치 후보를 뽑았다면, 09강부터는 기술 문서와 매뉴얼을 빠르게 읽어 조치 방법을 찾고 보고서 자동화로 이어갈 수 있습니다.
+              “최근 4주 기준 [불량명]은 [건수/점유율/변화율]로 우선 확인 대상입니다. [비교 불량]과 달리 [판단 근거]가 있으므로 [확인할 데이터]를 먼저 보고 [다음 액션]을 진행합니다.”
             </p>
           </div>
         </section>
