@@ -139,6 +139,58 @@ function App() {
       </header>
 
       <main>
+        <section className="report-sample-section" style={{ background: '#f8fafc', padding: '2rem', borderRadius: '12px', marginBottom: '3rem', border: '1px solid #e2e8f0' }}>
+          <span className="section-label" style={{ display: 'inline-block', background: '#3b82f6', color: 'white', padding: '0.25rem 0.75rem', borderRadius: '99px', fontSize: '0.875rem', fontWeight: 'bold', marginBottom: '1rem' }}>00. 현업 엔지니어의 실제 보고서</span>
+          <h2 style={{ marginTop: 0, color: '#0f172a' }}>"우리는 데이터로 말하고, 보고서로 설득합니다"</h2>
+          <p className="section-intro" style={{ marginBottom: '2rem' }}>
+            반도체/디스플레이 공정 엔지니어의 핵심 업무 중 하나는 <strong>데이터를 분석해 원인을 찾고, 이를 보고서로 작성하여 유관 부서를 설득하는 것</strong>입니다. AI가 어떻게 이 과정을 도울 수 있는지 알아보기 전에, 실제 현업에서 작성되는 주간/월간 보고서 샘플을 확인해 봅시다.
+          </p>
+          
+          <div className="report-cards-container" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1.5rem' }}>
+            {/* 주간 보고서 */}
+            <article className="report-card" style={{ background: 'white', padding: '1.5rem', borderRadius: '8px', boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)', borderTop: '4px solid #10b981' }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem', borderBottom: '1px solid #e2e8f0', paddingBottom: '0.5rem' }}>
+                <span style={{ fontWeight: 'bold', color: '#10b981' }}>주간 보고 (Weekly Report)</span>
+                <span style={{ fontSize: '0.85rem', color: '#64748b' }}>2026.05 3주차</span>
+              </div>
+              <h3 style={{ fontSize: '1.1rem', margin: '0 0 1rem 0', color: '#1e293b' }}>[보고] Photo 공정 Particle 불량 급증 원인 및 조치 결과</h3>
+              <ul style={{ paddingLeft: '1.5rem', color: '#334155', fontSize: '0.95rem', lineHeight: '1.6', margin: 0 }}>
+                <li><strong>현상:</strong> 5/18(화) 야간조부터 Pattern 불량 및 Particle 성 불량 44% 급증</li>
+                <li><strong>데이터 분석:</strong>
+                  <ul>
+                    <li>파레토 분석 결과 Particle 1위 (점유율 35.7%)</li>
+                    <li>설비별 분석 시 특정 Track 설비(T-04) 세정 구간에서 집중 발생</li>
+                  </ul>
+                </li>
+                <li><strong>조치 사항:</strong> T-04 설비 가동 중단 후 이송 롤러 및 Nozzle 교체 (5/19 조치 완료)</li>
+                <li><strong>향후 계획:</strong> 주말 PM 시 전체 Track 설비 롤러 마모도 점검 (조치 난이도: 하)</li>
+              </ul>
+            </article>
+
+            {/* 월간 보고서 */}
+            <article className="report-card" style={{ background: 'white', padding: '1.5rem', borderRadius: '8px', boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)', borderTop: '4px solid #3b82f6' }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem', borderBottom: '1px solid #e2e8f0', paddingBottom: '0.5rem' }}>
+                <span style={{ fontWeight: 'bold', color: '#3b82f6' }}>월간 보고 (Monthly Report)</span>
+                <span style={{ fontSize: '0.85rem', color: '#64748b' }}>2026년 4월 종합</span>
+              </div>
+              <h3 style={{ fontSize: '1.1rem', margin: '0 0 1rem 0', color: '#1e293b' }}>[월간] 공정 수율 현황 및 고질 불량 개선 경과</h3>
+              <ul style={{ paddingLeft: '1.5rem', color: '#334155', fontSize: '0.95rem', lineHeight: '1.6', margin: 0 }}>
+                <li><strong>수율 현황:</strong> 4월 평균 수율 95.4% (목표 95.0% 대비 +0.4%p 초과 달성)</li>
+                <li><strong>주요 불량(Pareto Top 3):</strong>
+                  <ol style={{ paddingLeft: '1rem', marginTop: '0.25rem', marginBottom: '0.25rem' }}>
+                    <li>Particle (32%) - 지속적인 개선 활동으로 전월 대비 5% 감소</li>
+                    <li>Scratch (21%) - 이송 카세트 노후화가 주 원인</li>
+                    <li>CD Drift (18%) - 최근 2주간 4위에서 3위로 상승 (⚠️<strong>위험 감지</strong>)</li>
+                  </ol>
+                </li>
+                <li><strong>액션 매트릭스:</strong> 영향도는 높으나 조치 난이도가 낮은 'Scratch' 불량 개선을 위해 익월 카세트 전면 교체 품의 예정</li>
+              </ul>
+            </article>
+          </div>
+          <div style={{ background: '#eff6ff', padding: '1rem', borderRadius: '8px', marginTop: '1.5rem', borderLeft: '4px solid #2563eb', fontSize: '0.95rem', color: '#1e3a8a', lineHeight: '1.5' }}>
+            <strong>💡 강사의 한마디:</strong> "우리가 지금부터 파이썬과 AI로 만들 결과물이 바로 <strong>이런 보고서에 들어갈 핵심 차트와 데이터 근거들</strong>입니다. 차트를 그리는 것에 그치지 않고, 조치 계획을 세우는 것까지가 엔지니어의 진짜 역할입니다."
+          </div>
+        </section>
         <section className="overview-section">
           <span className="section-label">01. 오프닝 및 학습목표</span>
           <h2>08강은 “분석 결과를 보고 무엇을 먼저 고칠 것인가”를 결정하는 수업입니다</h2>
